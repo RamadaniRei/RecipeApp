@@ -1,22 +1,99 @@
+import { useState } from "react";
 import "./App.css";
+import Axios from "axios";
+import Recipetile from "./recipetile/Recipetile";
 
 function App() {
+  const apiKey = process.env.REACT_APP_API_KEY;
+  const appId = process.env.REACT_APP_APP_ID;
+  const [query, setQuery] = useState("");
+  const [healthLabel, setHealthLabel] = useState("vegetarian");
+  const [recipes, setRecipes] = useState([]);
+
+  const url = `https://api.edamam.com/search?q=${query}&app_id=${appId}&app_key=${apiKey}&health=${healthLabel}`;
+
+  const getRecipeInfo = async () => {
+    var result = await Axios.get(url);
+    setRecipes(result.data.hits);
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    getRecipeInfo();
+  };
+
   return (
     <div className="app">
-      <h1>
+      <h1 onClick={getRecipeInfo}>
         <u> Food Recipe Hub</u>🥗
       </h1>
-      <div className="app__searchForm">
+      <form className="app__searchForm" onSubmit={onSubmit}>
         <input
           type="text"
           placeholder="Type the ingredient..."
           autoComplete="Off"
           className="app__input"
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+          }}
         />
         <select className="app__healthLabels">
-          <option value="vegan">vegan</option>
+          <option
+            value="vegan"
+            onClick={() => {
+              setHealthLabel("vegan");
+            }}
+          >
+            vegan
+          </option>
+          <option
+            value="vegetarian"
+            onClick={() => {
+              setHealthLabel("vegetarian");
+            }}
+          >
+            vegetarian
+          </option>
+          <option
+            value="low-sugar"
+            onClick={() => {
+              setHealthLabel("low-sugar");
+            }}
+          >
+            low-sugar
+          </option>
+          <option
+            value="dairy-free"
+            onClick={() => {
+              setHealthLabel("dairy-free");
+            }}
+          >
+            dairy-free
+          </option>
+          <option
+            value=" immuno-supportive "
+            onClick={() => {
+              setHealthLabel(" immuno-supportive ");
+            }}
+          >
+            immuno-supportive
+          </option>
+          <option
+            value="wheat-free"
+            onClick={() => {
+              setHealthLabel("wheat-free");
+            }}
+          >
+            wheat-free
+          </option>
         </select>
         <input type="submit" value="Get Recipe" className="app__submit" />
+      </form>
+      <div className="app__recipes">
+        {recipes.map((recipe) => {
+          return <Recipetile key={recipe.recipe.uri} recipe={recipe} />;
+        })}
       </div>
     </div>
   );
